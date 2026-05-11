@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business Project Tracker</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4">
+
+<div class="max-w-5xl mx-auto">
+<h1 class="text-2xl font-bold mb-6">Business Project & Action Tracker</h1>
+
+<div class="bg-white p-4 rounded shadow mb-6">
+<h2 class="font-semibold mb-4">Add New Item</h2>
+
+<div class="grid gap-3">
+<input id="project" placeholder="Project Name" class="border p-2 rounded w-full">
+<input id="action" placeholder="Action" class="border p-2 rounded w-full">
+
+<select id="category" class="border p-2 rounded w-full">
+<option>CANNA</option>
+<option>Acrelec</option>
+<option>Mackwell</option>
+<option>Prospect</option>
+</select>
+
+<select id="priority" class="border p-2 rounded w-full">
+<option>High</option>
+<option>Medium</option>
+<option>Low</option>
+</select>
+
+<select id="status" class="border p-2 rounded w-full">
+<option>Open</option>
+<option>In Progress</option>
+<option>Waiting</option>
+<option>Completed</option>
+</select>
+
+<input id="dueDate" type="date" class="border p-2 rounded w-full">
+
+<button onclick="addTask()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+Add Item
+</button>
+</div>
+</div>
+
+<div class="bg-white p-4 rounded shadow mb-4">
+<div class="flex flex-col gap-3">
+<select id="filterCategory" onchange="renderTasks()" class="border p-2 rounded w-full">
+<option value="">All Categories</option>
+<option>CANNA</option>
+<option>Acrelec</option>
+<option>Mackwell</option>
+<option>Prospect</option>
+</select>
+
+<select id="filterStatus" onchange="renderTasks()" class="border p-2 rounded w-full">
+<option value="">All Status</option>
+<option>Open</option>
+<option>In Progress</option>
+<option>Waiting</option>
+<option>Completed</option>
+</select>
+</div>
+</div>
+
+<div class="bg-white rounded shadow overflow-x-auto">
+<table class="min-w-full text-sm">
+<thead class="bg-gray-200">
+<tr>
+<th class="p-2 text-left">Category</th>
+<th class="p-2 text-left">Project</th>
+<th class="p-2 text-left">Action</th>
+<th class="p-2 text-left">Priority</th>
+<th class="p-2 text-left">Status</th>
+<th class="p-2 text-left">Due</th>
+<th class="p-2 text-left">Delete</th>
+</tr>
+</thead>
+<tbody id="taskTable"></tbody>
+</table>
+</div>
+</div>
+
+<script>
+let tasks = JSON.parse(localStorage.getItem("businessTasks")) || [];
+
+function saveTasks() {
+localStorage.setItem("businessTasks", JSON.stringify(tasks));
+}
+
+function addTask() {
+const project = document.getElementById("project").value.trim();
+const action = document.getElementById("action").value.trim();
+const category = document.getElementById("category").value;
+const priority = document.getElementById("priority").value;
+const status = document.getElementById("status").value;
+const dueDate = document.getElementById("dueDate").value;
+
+if (!project || !action) {
+alert("Please enter both Project Name and Action");
+return;
+}
+
+tasks.push({
+project,
+action,
+category,
+priority,
+status,
+dueDate
+});
+
+saveTasks();
+renderTasks();
+
+document.getElementById("project").value = "";
+document.getElementById("action").value = "";
+document.getElementById("dueDate").value = "";
+}
+
+function deleteTask(index) {
+tasks.splice(index, 1);
+saveTasks();
+renderTasks();
+}
+
+function renderTasks() {
+const filterCategory = document.getElementById("filterCategory").value;
+const filterStatus = document.getElementById("filterStatus").value;
+
+const table = document.getElementById("taskTable");
+table.innerHTML = "";
+
+tasks.forEach((task, index) => {
+if (filterCategory && task.category !== filterCategory) return;
+if (filterStatus && task.status !== filterStatus) return;
+
+const priorityColor =
+task.priority === "High" ? "text-red-600 font-semibold" :
+task.priority === "Medium" ? "text-yellow-600 font-semibold" :
+"text-green-600 font-semibold";
+
+const row = `
+<tr class="border-t">
+<td class="p-2">${task.category}</td>
+<td class="p-2">${task.project}</td>
+<td class="p-2">${task.action}</td>
+<td class="p-2 ${priorityColor}">${task.priority}</td>
+<td class="p-2">${task.status}</td>
+<td class="p-2">${task.dueDate || "-"}</td>
+<td class="p-2">
+<button onclick="deleteTask(${index})" class="text-red-600 hover:underline">
+Delete
+</button>
+</td>
+</tr>
+`;
+table.innerHTML += row;
+});
+}
+
+renderTasks();
+</script>
+
+</body>
+</html>
