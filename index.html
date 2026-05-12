@@ -109,10 +109,15 @@ document.getElementById("action").value = "";
 document.getElementById("dueDate").value = "";
 };
 
-onSnapshot(tasksCollection, (snapshot) => {
+onSnapshot(tasksCollection, (snapshot) => {const today = new Date();
+const tomorrow = new Date();
+tomorrow.setDate(today.getDate() + 1);
+const tomorrowStr = tomorrow.toISOString().split("T")[0];
 table.innerHTML = "";
 snapshot.forEach((docSnap) => {
-const task = docSnap.data();
+const task = docSnap.data();if (task.dueDate === tomorrowStr) {
+  alert("Reminder: '" + task.project + "' is due tomorrow!");
+}
 const row = `
 <tr class="border-t">
 <td class="p-2">${task.category}</td>
