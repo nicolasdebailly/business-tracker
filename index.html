@@ -1,3 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Business Project & Action Tracker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 p-4">
+
+<div class="max-w-5xl mx-auto">
+  <h1 class="text-2xl font-bold mb-6">Business Project & Action Tracker</h1>
+
+  <div class="bg-white p-4 rounded shadow mb-6">
+    <div class="grid gap-3">
+      <input id="project" placeholder="Project Name" class="border p-2 rounded w-full">
+      <input id="action" placeholder="Action" class="border p-2 rounded w-full">
+
+      <select id="category" class="border p-2 rounded w-full">
+        <option>CANNA</option>
+        <option>Acrelec</option>
+        <option>Mackwell</option>
+        <option>Prospect</option>
+      </select>
+
+      <select id="priority" class="border p-2 rounded w-full">
+        <option>High</option>
+        <option>Medium</option>
+        <option>Low</option>
+      </select>
+
+      <select id="status" class="border p-2 rounded w-full">
+        <option>Open</option>
+        <option>In Progress</option>
+        <option>Waiting</option>
+        <option>Completed</option>
+      </select>
+
+      <input id="dueDate" type="date" class="border p-2 rounded w-full">
+
+      <button onclick="addTask()" class="bg-blue-600 text-white px-4 py-2 rounded">
+        Add Item
+      </button>
+    </div>
+  </div>
+
+  <div class="bg-white rounded shadow overflow-x-auto">
+    <table class="min-w-full text-sm">
+      <thead class="bg-gray-200">
+        <tr>
+          <th class="p-2 text-left">Category</th>
+          <th class="p-2 text-left">Project</th>
+          <th class="p-2 text-left">Action</th>
+          <th class="p-2 text-left">Priority</th>
+          <th class="p-2 text-left">Status</th>
+          <th class="p-2 text-left">Due</th>
+          <th class="p-2 text-left">Delete</th>
+        </tr>
+      </thead>
+      <tbody id="taskTable"></tbody>
+    </table>
+  </div>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
 import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
@@ -18,54 +83,57 @@ const tasksCollection = collection(db, "tasks");
 const table = document.getElementById("taskTable");
 
 window.addTask = async function () {
-const project = document.getElementById("project").value.trim();
-const action = document.getElementById("action").value.trim();
-const category = document.getElementById("category").value;
-const priority = document.getElementById("priority").value;
-const status = document.getElementById("status").value;
-const dueDate = document.getElementById("dueDate").value;
+  const project = document.getElementById("project").value.trim();
+  const action = document.getElementById("action").value.trim();
+  const category = document.getElementById("category").value;
+  const priority = document.getElementById("priority").value;
+  const status = document.getElementById("status").value;
+  const dueDate = document.getElementById("dueDate").value;
 
-if (!project || !action) {
-alert("Enter project and action");
-return;
-}
+  if (!project || !action) {
+    alert("Enter project and action");
+    return;
+  }
 
-await addDoc(tasksCollection, {
-project,
-action,
-category,
-priority,
-status,
-dueDate
-});
+  await addDoc(tasksCollection, {
+    project,
+    action,
+    category,
+    priority,
+    status,
+    dueDate
+  });
 
-document.getElementById("project").value = "";
-document.getElementById("action").value = "";
-document.getElementById("dueDate").value = "";
+  document.getElementById("project").value = "";
+  document.getElementById("action").value = "";
+  document.getElementById("dueDate").value = "";
 };
 
 onSnapshot(tasksCollection, (snapshot) => {
-table.innerHTML = "";
-snapshot.forEach((docSnap) => {
-const task = docSnap.data();
-const row = `
-<tr class="border-t">
-<td class="p-2">${task.category}</td>
-<td class="p-2">${task.project}</td>
-<td class="p-2">${task.action}</td>
-<td class="p-2">${task.priority}</td>
-<td class="p-2">${task.status}</td>
-<td class="p-2">${task.dueDate || "-"}</td>
-<td class="p-2">
-<button onclick="deleteTask('${docSnap.id}')" class="text-red-600">Delete</button>
-</td>
-</tr>
-`;
-table.innerHTML += row;
-});
+  table.innerHTML = "";
+  snapshot.forEach((docSnap) => {
+    const task = docSnap.data();
+    const row = `
+      <tr class="border-t">
+        <td class="p-2">${task.category}</td>
+        <td class="p-2">${task.project}</td>
+        <td class="p-2">${task.action}</td>
+        <td class="p-2">${task.priority}</td>
+        <td class="p-2">${task.status}</td>
+        <td class="p-2">${task.dueDate || "-"}</td>
+        <td class="p-2">
+          <button onclick="deleteTask('${docSnap.id}')" class="text-red-600">Delete</button>
+        </td>
+      </tr>
+    `;
+    table.innerHTML += row;
+  });
 });
 
 window.deleteTask = async function (id) {
-await deleteDoc(doc(db, "tasks", id));
+  await deleteDoc(doc(db, "tasks", id));
 };
 </script>
+
+</body>
+</html>
