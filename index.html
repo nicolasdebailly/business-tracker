@@ -11,6 +11,7 @@
 
 <div class="max-w-5xl mx-auto">
 <h1 class="text-2xl font-bold mb-6">Business Project & Action Tracker</h1>
+<div id="reminderBanner" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"></div>
 
 <div class="bg-white p-4 rounded shadow mb-6">
 <div class="grid gap-3">
@@ -113,9 +114,20 @@ onSnapshot(tasksCollection, (snapshot) => {const today = new Date();
 const tomorrow = new Date();
 tomorrow.setDate(today.getDate() + 1);
 const tomorrowStr = tomorrow.toISOString().split("T")[0];
-table.innerHTML = "";
+table.innerHTML = "";const banner = document.getElementById("reminderBanner");
+banner.classList.add("hidden");
+banner.innerHTML = "";
+
+const today = new Date();
+const tomorrow = new Date();
+tomorrow.setDate(today.getDate() + 1);
+const tomorrowStr = tomorrow.toISOString().split("T")[0];
+
+let dueTomorrowTasks = [];
 snapshot.forEach((docSnap) => {
 const task = docSnap.data();if (task.dueDate === tomorrowStr) {
+  dueTomorrowTasks.push(task.project);
+}if (task.dueDate === tomorrowStr) {
   alert("Reminder: '" + task.project + "' is due tomorrow!");
 }
 const row = `
@@ -132,7 +144,12 @@ const row = `
 </tr>
 `;
 table.innerHTML += row;
-});
+});if (dueTomorrowTasks.length > 0) {
+  banner.classList.remove("hidden");
+  banner.innerHTML =
+    "<strong>Reminder:</strong> The following project(s) are due tomorrow:<br>" +
+    dueTomorrowTasks.join("<br>");
+}
 });
 
 window.deleteTask = async function (id) {
