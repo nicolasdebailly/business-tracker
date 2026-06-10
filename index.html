@@ -66,7 +66,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAgB3Mhkt7vqKZIVm-Oa9ZXQ5vkBcsdxdY",
@@ -126,19 +126,42 @@ let dueTomorrowTasks = [];
     if (task.dueDate && task.dueDate === tomorrowStr) {
   dueTomorrowTasks.push(task.project);
 }
-    const row = `
-      <tr class="border-t">
-        <td class="p-2">${task.category}</td>
-        <td class="p-2">${task.project}</td>
-        <td class="p-2">${task.action}</td>
-        <td class="p-2">${task.priority}</td>
-        <td class="p-2">${task.status}</td>
-        <td class="p-2">${task.dueDate || "-"}</td>
-        <td class="p-2">
-          <button onclick="deleteTask('${docSnap.id}')" class="text-red-600">Delete</button>
-        </td>
-      </tr>
-    `;
+const row = `
+<tr class="border-t">
+  <td class="p-2">${task.category}</td>
+  <td class="p-2">${task.project}</td>
+  <td class="p-2">${task.action}</td>
+
+  <td class="p-2">
+    <select onchange="updateField('${docSnap.id}', 'priority', this.value)" class="border rounded p-1">
+      <option ${task.priority === "High" ? "selected" : ""}>High</option>
+      <option ${task.priority === "Medium" ? "selected" : ""}>Medium</option>
+      <option ${task.priority === "Low" ? "selected" : ""}>Low</option>
+    </select>
+  </td>
+
+  <td class="p-2">
+    <select onchange="updateField('${docSnap.id}', 'status', this.value)" class="border rounded p-1">
+      <option ${task.status === "Open" ? "selected" : ""}>Open</option>
+      <option ${task.status === "In Progress" ? "selected" : ""}>In Progress</option>
+      <option ${task.status === "Waiting" ? "selected" : ""}>Waiting</option>
+      <option ${task.status === "Completed" ? "selected" : ""}>Completed</option>
+    </select>
+  </td>
+
+  <td class="p-2">
+    <input type="date"
+      value="${task.dueDate || ""}"
+      onchange="updateField('${docSnap.id}', 'dueDate', this.value)"
+      class="border rounded p-1"
+    />
+  </td>
+
+  <td class="p-2">
+    <button onclick="deleteTask('${docSnap.id}')" class="text-red-600">Delete</button>
+  </td>
+</tr>
+`;
     table.innerHTML += row;
     if (dueTomorrowTasks.length > 0) {
   banner.classList.remove("hidden");
@@ -151,6 +174,12 @@ let dueTomorrowTasks = [];
 
 window.deleteTask = async function (id) {
   await deleteDoc(doc(db, "tasks", id));
+};
+
+window.updateField = async function (id, field, value) {
+  await updateDoc(doc(db, "tasks", id), {
+    [field]: value
+  });
 };
 </script>
 
