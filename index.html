@@ -123,11 +123,20 @@ const tomorrowStr = tomorrow.toISOString().split("T")[0];
 let dueTomorrowTasks = [];
   snapshot.forEach((docSnap) => {
     const task = docSnap.data();
+    const todayStr = new Date().toISOString().split("T")[0];
+
+let rowStyle = "";
+
+if (task.status === "Completed") {
+  rowStyle = "bg-gray-100 text-gray-400";
+} else if (task.dueDate && task.dueDate < todayStr) {
+  rowStyle = "bg-red-100";
+}
     if (task.dueDate && task.dueDate === tomorrowStr) {
   dueTomorrowTasks.push(task.project);
 }
 const row = `
-<tr class="border-t">
+<tr class="border-t ${rowStyle}">
   <td class="p-2">${task.category}</td>
   <td class="p-2">${task.project}</td>
   <td class="p-2">${task.action}</td>
